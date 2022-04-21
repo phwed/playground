@@ -80,6 +80,7 @@ export default function TopSheet() {
           alignItems="center"
           justifyContent={"flex-start"}
         >
+          {/* create dummy boxes */}
           {[1, 2, 3, 4, 5, 6, 7].map((i) => (
             <Box key={i} bg="blue.100" p={10} mb={5}>
               <Text>{i}</Text>
