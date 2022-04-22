@@ -16,6 +16,15 @@ import {
 import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { heightPercentageToDP as hp } from "react-native-responsive-screen";
+import Animated, {
+  ZoomInUp,
+  ZoomOutDown,
+  SlideInDown,
+  SlideOutUp,
+  JumpingTransition,
+  Easing,
+  ZoomOutUp,
+} from "react-native-reanimated";
 
 export default function TopSheet() {
   // set constant height for the top sheet
@@ -25,66 +34,128 @@ export default function TopSheet() {
   //   change the height of the top sheet based on the state
   const [toggleHeight, setToggleHeight] = React.useState(false);
 
+  // create dummy array
+  const [dummyArray, setDummyArray] = React.useState([]);
+
+  //   function to add to dummy array
+  function addToDummyArray() {
+    setDummyArray([
+      ...dummyArray,
+      {
+        id: dummyArray.length,
+        text: Math.random().toString(36).substring(2, 7),
+      },
+    ]);
+  }
+
+  console.log(dummyArray);
+
   return (
     <Box flex={1} safeAreaBottom>
       {/* top sheet */}
-      <Box
-        bg="blue.800"
-        px={5}
-        safeAreaTop
-        borderBottomLeftRadius={20}
-        borderBottomRightRadius={20}
-        height={
-          // if the state is true, set the height to the expanded height
-          !toggleHeight ? TOP_SHEET_HEIGHT_COLLAPSED : TOP_SHEET_HEIGHT_EXPANDED
-        }
-        zIndex={1}
-        // the trick is to make it absolute so that it does not interfere with the rest of the content
-        position="absolute"
-        top={0}
-        left={0}
-        right={0}
+      <Animated.View
+        entering={SlideInDown.springify()}
+        exiting={SlideOutUp.springify()}
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "white",
+          zIndex: 100,
+          borderBottomLeftRadius: 20,
+          borderBottomRightRadius: 20,
+          elevation: 10,
+          height: toggleHeight
+            ? TOP_SHEET_HEIGHT_EXPANDED
+            : TOP_SHEET_HEIGHT_COLLAPSED,
+        }}
       >
-        <Box flex={1} bg="amber.100" p={5}>
-          <Center bg="amber.300" py={10} mb={5}>
-            <Text>header content</Text>
-          </Center>
-          {/* hides content when height is collapsed shows when its expanded */}
-          {toggleHeight && (
-            <Center flex={1} bg="amber.400">
-              <Text>body content</Text>
+        <Box
+          bg="blue.800"
+          px={5}
+          safeAreaTop
+          borderBottomLeftRadius={20}
+          borderBottomRightRadius={20}
+          height={
+            // if the state is true, set the height to the expanded height
+            !toggleHeight
+              ? TOP_SHEET_HEIGHT_COLLAPSED
+              : TOP_SHEET_HEIGHT_EXPANDED
+          }
+          zIndex={1}
+          // the trick is to make it absolute so that it does not interfere with the rest of the content
+          position="absolute"
+          top={0}
+          left={0}
+          right={0}
+        >
+          <Box flex={1} bg="amber.100" p={5}>
+            <Center bg="amber.300" py={10} mb={5}>
+              <Text>header content</Text>
             </Center>
-          )}
+            {/* hides content when height is collapsed shows when its expanded */}
+            {toggleHeight && (
+              <Center flex={1} bg="amber.400">
+                <Text>body content</Text>
+              </Center>
+            )}
+          </Box>
+          <Box bg="red.200">
+            {/* button to toggle height */}
+            <IconButton
+              onPress={() => setToggleHeight(!toggleHeight)}
+              icon={
+                <Icon
+                  as={Feather}
+                  name={toggleHeight ? "chevron-up" : "chevron-down"}
+                  size="xl"
+                  color="white"
+                />
+              }
+            />
+          </Box>
         </Box>
-        <Box bg="red.200">
-          {/* button to toggle height */}
-          <IconButton
-            onPress={() => setToggleHeight(!toggleHeight)}
-            icon={
-              <Icon
-                as={Feather}
-                name={toggleHeight ? "chevron-up" : "chevron-down"}
-                size="xl"
-                color="white"
-              />
-            }
-          />
-        </Box>
-      </Box>
+      </Animated.View>
 
       {/* content*/}
       <ScrollView marginTop={TOP_SHEET_HEIGHT_COLLAPSED} padding={10}>
+        {/* add item to list */}
+        <Button
+          my={5}
+          // add item to dummy array
+          onPress={() => addToDummyArray()}
+        >
+          add item
+        </Button>
         <HStack
           flexWrap={"wrap"}
-          space={10}
           alignItems="center"
-          justifyContent={"flex-start"}
+          justifyContent={"space-evenly"}
         >
           {/* create dummy boxes */}
-          {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-            <Box key={i} bg="blue.100" p={10} mb={5}>
-              <Text>{i}</Text>
-            </Box>
+          {dummyArray.map((item, index) => (
+            <Animated.View
+              key={item.id}
+              layout={JumpingTransition.duration(200).delay(200)}
+              entering={ZoomInUp.springify()}
+              exiting={ZoomOutUp.springify()}
+              style={{
+                padding: 30,
+                backgroundColor: "skyblue",
+                marginBottom: 10,
+              }}
+            >
+              <Button
+                onPress={() => {
+                  //   remove selected item
+                  setDummyArray(dummyArray.filter((i) => i.id !== item.id));
+                }}
+              >
+                {`${item.text} ${index + 1}`}
+              </Button>
+            </Animated.View>
           ))}
         </HStack>
       </ScrollView>
