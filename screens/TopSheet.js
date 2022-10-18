@@ -17,13 +17,12 @@ import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { heightPercentageToDP as hp } from "react-native-responsive-screen";
 import Animated, {
-  ZoomInUp,
-  ZoomOutDown,
+  SlideInLeft,
   SlideInDown,
   SlideOutUp,
-  JumpingTransition,
+  Layout,
   Easing,
-  ZoomOutUp,
+  SlideOutLeft,
 } from "react-native-reanimated";
 
 export default function TopSheet() {
@@ -138,23 +137,29 @@ export default function TopSheet() {
           {dummyArray.map((item, index) => (
             <Animated.View
               key={item.id}
-              layout={JumpingTransition.duration(200).delay(200)}
-              entering={ZoomInUp.springify()}
-              exiting={ZoomOutUp.springify()}
+              layout={Layout.springify()}
+              entering={SlideInLeft.springify()}
+              exiting={SlideOutLeft.springify()}
               style={{
                 padding: 30,
                 backgroundColor: "skyblue",
                 marginBottom: 10,
+                width: "100%",
               }}
             >
-              <Button
-                onPress={() => {
-                  //   remove selected item
-                  setDummyArray(dummyArray.filter((i) => i.id !== item.id));
-                }}
-              >
-                {`${item.text} ${index + 1}`}
-              </Button>
+              <HStack alignItems={"center"}>
+                <Text flex={1}>{item.text}</Text>
+                <IconButton
+                  variant={"solid"}
+                  onPress={() => {
+                    //   remove selected item
+                    setDummyArray(dummyArray.filter((i) => i.id !== item.id));
+                  }}
+                  icon={
+                    <Icon as={Feather} name="trash" size="md" color="red.500" />
+                  }
+                />
+              </HStack>
             </Animated.View>
           ))}
         </HStack>
